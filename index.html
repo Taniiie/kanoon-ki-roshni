@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>कानून की रोशनी — AI Legal Aid Portal</title>
+  <meta name="description" content="AI-powered legal document scanner for India. Scan any legal document and understand your rights in your language. Free, secure, works offline." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Premium Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Tesseract.js OCR — free, runs in browser -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════ PREMIUM AMBIENT BACKDROP ═══════════ -->
+  <div class="app-bg">
+    <div class="ambient-glow ag-1"></div>
+    <div class="ambient-glow ag-2"></div>
+    <div class="ambient-glow ag-3"></div>
+    <div class="grid-overlay"></div>
+    <div class="noise-overlay"></div>
+  </div>
+
+  <!-- ═══════════ APP SHELL ═══════════ -->
+  <div class="app-shell">
+
+    <!-- ─── MINIMAL SIDEBAR ─── -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">⚖️</div>
+        <div class="brand-text">
+          <h1>कानून की रोशनी</h1>
+          <span>KANOON KI ROSHNI</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-screen="screen-home" onclick="App.navigateTo('screen-home')">
+          <span class="nav-icon">✦</span>
+          <span data-i18n="nav.dashboard">डैशबोर्ड</span>
+        </button>
+        <button class="nav-item" data-screen="screen-scan" onclick="App.navigateTo('screen-scan')">
+          <span class="nav-icon">📷</span>
+          <span data-i18n="nav.scan">स्कैन करें</span>
+        </button>
+        <button class="nav-item" data-screen="screen-history" onclick="App.showToast('🚧 Available in Pro version!')">
+          <span class="nav-icon">📁</span>
+          <span data-i18n="nav.history">इतिहास</span>
+        </button>
+        <button class="nav-item" data-screen="screen-settings" onclick="App.showToast('🚧 Integrated inside Header!')">
+          <span class="nav-icon">⚙️</span>
+          <span data-i18n="nav.settings">सेटिंग्स</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="tel:15100" class="mini-helpline-card">
+          <div class="mhc-header">
+            <span class="mhc-icon">📞</span>
+            <span data-i18n="nav.helpline">हेल्पलाइन</span>
+          </div>
+          <div class="mhc-num">15100</div>
+          <div class="mhc-label">NALSA Free Legal Aid</div>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ─── MAIN CONTAINER ─── -->
+    <main class="main-content">
+
+      <!-- ═══ MINIMALIST TOPBAR ═══ -->
+      <header class="topbar-header">
+        <div class="topbar-search">
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" data-i18n-placeholder="header.search" placeholder="खोजें…" id="searchInput" />
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <!-- Language Dropdown -->
+          <div class="lang-selector" id="langSelector">
+            <button class="lang-btn" id="langBtn" onclick="App.toggleLangDropdown()">
+              <span class="lang-flag" id="langFlag">🇮🇳</span>
+              <span id="langLabel">हिंदी</span>
+              <span class="lang-arrow">▼</span>
+            </button>
+            <div class="lang-dropdown" id="langDropdown">
+              <button class="lang-option active" data-lang="hi" onclick="App.changeLang('hi')">
+                <span class="lang-option-flag">🇮🇳</span> हिंदी
+              </button>
+              <button class="lang-option" data-lang="en" onclick="App.changeLang('en')">
+                <span class="lang-option-flag">🇬🇧</span> English
+              </button>
+              <button class="lang-option" data-lang="mr" onclick="App.changeLang('mr')">
+                <span class="lang-option-flag">🇮🇳</span> मराठी
+              </button>
+              <button class="lang-option" data-lang="ta" onclick="App.changeLang('ta')">
+                <span class="lang-option-flag">🇮🇳</span> தமிழ்
+              </button>
+              <button class="lang-option" data-lang="bn" onclick="App.changeLang('bn')">
+                <span class="lang-option-flag">🇮🇳</span> বাংলা
+              </button>
+            </div>
+          </div>
+
+          <button class="notif-btn" onclick="App.showToast('🔔 All systems operational.')" aria-label="Notifications">
+            <span class="bell-icon">🔔</span>
+            <span class="notif-dot"></span>
+          </button>
+
+          <div class="user-avatar" onclick="App.showModal()" title="API Settings">U</div>
+        </div>
+      </header>
+
+
+      <!-- ═══════════════════════════════════════════
+           SCREEN: DASHBOARD (CINEMATIC HOMEPAGE)
+      ════════════════════════════════════════════ -->
+      <section id="screen-home" class="screen active">
+
+        <!-- ─── HERO SECTION ─── -->
+        <div class="hero-section">
+          <div class="hero-content">
+            <span class="hero-badge-pill" data-i18n="hero.badge">100% मुफ्त • सुरक्षित • ऑफलाइन समर्थन</span>
+            <h1 class="hero-title font-playfair" id="heroTitleMain" data-i18n="hero.title">कोई वकील नहीं? कोई बात नहीं।</h1>
+            <p class="hero-subtitle" data-i18n="hero.subtitle">AI की शक्ति से अपने कानूनी अधिकारों को जानें। जटिल दस्तावेज़ों को मिनटों में समझें।</p>
+            <div class="hero-actions">
+              <button class="btn-premium primary" onclick="App.navigateTo('screen-scan')">
+                <span data-i18n="hero.cta">स्कैन शुरू करें</span>
+                <span class="btn-glow-effect"></span>
+              </button>
+              <button class="btn-premium secondary-link" onclick="document.getElementById('liveWorkspace').scrollIntoView({ behavior: 'smooth' })">
+                Explore Features ↓
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Cinematic Floating UI -->
+          <div class="hero-visual">
+            <div class="visual-canvas">
+              <div class="floating-card fl-1">
+                <div class="fc-head">
+                  <span class="fc-dot red"></span>
+                  <span style="font-size: 0.72rem; opacity:0.6;">RENT AGREEMENT</span>
+                </div>
+                <div class="fc-title">Eviction Clause</div>
+                <div class="fc-body">"Tenant must vacate within 24 hours..."</div>
+                <div class="fc-badge red">🔴 High Risk</div>
+              </div>
+              <div class="floating-card fl-2">
+                <div class="fc-head">
+                  <span class="fc-dot green"></span>
+                  <span style="font-size: 0.72rem; opacity:0.6;">LAND REGISTRATION</span>
+                </div>
+                <div class="fc-title">Ownership Verified</div>
+                <div class="fc-body">"Plot 42A cleared of all liabilities."</div>
+                <div class="fc-badge green">🟢 Verified</div>
+              </div>
+              <div class="visual-document-mockup">
+                <div class="doc-mockup-line title"></div>
+                <div class="doc-mockup-line"></div>
+                <div class="doc-mockup-line"></div>
+                <div class="doc-mockup-line highlight"></div>
+                <div class="doc-mockup-line"></div>
+                <div class="doc-mockup-line highlight-green"></div>
+                <div class="doc-mockup-scanner-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── FEATURES SECTION (ALTERNATING EDITORIALS) ─── -->
+        <div class="features-section">
+          <div class="section-header-editorial">
+            <h2 class="editorial-title font-playfair" data-i18n="features.title">आधुनिक तकनीक, सरल भाषा</h2>
+            <p class="editorial-subtitle" data-i18n="features.subtitle">जटिल कानूनी भाषा को समझने के लिए हमारी तीन-स्तरीय सुरक्षा प्रणाली</p>
+          </div>
+
+          <div class="features-flow">
+            <!-- Row 1: Left Text, Right Visual -->
+            <div class="editorial-row">
+              <div class="er-text">
+                <div class="er-num">01 / SECURE INPUT</div>
+                <h3 class="er-heading" data-i18n="feature.ocr.title">शक्तिशाली ऑन-डिवाइस OCR</h3>
+                <p class="er-desc" data-i18n="feature.ocr.desc">Tesseract.js के माध्यम से आपके दस्तावेज़ों को सीधे आपके ब्राउज़र में पढ़ा जाता है। कोई डेटा सर्वर पर अपलोड नहीं होता।</p>
+              </div>
+              <div class="er-visual">
+                <div class="visual-card-wrap">
+                  <div class="floating-mock-ui ocr-mock">
+                    <div class="scanner-frame-corners"></div>
+                    <div class="ocr-text-lines">
+                      <div class="otl-line active">Scanning legal clause text...</div>
+                      <div class="otl-line active">Parsing sections...</div>
+                      <div class="otl-line">Verified 100% secure offline</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Right Text, Left Visual -->
+            <div class="editorial-row reverse">
+              <div class="er-text">
+                <div class="er-num">02 / DEEP INTELLIGENCE</div>
+                <h3 class="er-heading" data-i18n="feature.ai.title">LLaMA3 कानूनी विश्लेषक</h3>
+                <p class="er-desc" data-i18n="feature.ai.desc">Groq LLaMA3-8B मॉडल के साथ जटिल कानूनी शब्दों को सरल, समझने योग्य भाषा में बदला जाता है।</p>
+              </div>
+              <div class="er-visual">
+                <div class="visual-card-wrap">
+                  <div class="floating-mock-ui ai-mock">
+                    <div class="ai-node-hub">⚙️ AI Analysis</div>
+                    <div class="ai-json-preview">
+                      <span class="aj-key">"risk_level":</span> <span class="aj-val">"high"</span>,<br/>
+                      <span class="aj-key">"eviction":</span> <span class="aj-val">"illegal clause detected"</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Left Text, Right Visual -->
+            <div class="editorial-row">
+              <div class="er-text">
+                <div class="er-num">03 / AR REPRESENTATION</div>
+                <h3 class="er-heading" data-i18n="feature.ar.title">ऑगमेंटेड रियलिटी ओवरले</h3>
+                <p class="er-desc" data-i18n="feature.ar.desc">खतरनाक शर्तों को सीधे दस्तावेज़ के ऊपर इंटरेक्टिव टैग्स के साथ हाइलाइट किया जाता है।</p>
+              </div>
+              <div class="er-visual">
+                <div class="visual-card-wrap">
+                  <div class="floating-mock-ui ar-mock">
+                    <div class="ar-pointer-bubble high">
+                      <span class="apb-tag">⚠️ HIGH RISK</span>
+                      <span class="apb-desc">Non-refundable clause is predatory</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── THE HUMAN-TOUCH EDITORIAL BLOCK (NEW) ─── -->
+        <div class="human-craft-section">
+          <div class="hcs-container">
+            <div class="hcs-text">
+              <span class="hcs-label" data-i18n="craft.label">DESIGN PHILOSOPHY</span>
+              <h2 class="font-playfair hcs-title" data-i18n="craft.title">Designed with Empathy, Not Templates</h2>
+              <p class="hcs-desc" data-i18n="craft.desc">Legal frameworks can be cold, rigid, and intimidating. We hand-crafted this experience to feel warm, human, and accessible. Every screen is designed around real human rhythms, with asymmetric alignments, organic spacing variations, and custom visual accents that tell a story.</p>
+              
+              <div class="hcs-quotes">
+                <div class="hcs-quote-item">
+                  <span class="hq-icon">✍️</span>
+                  <div class="hq-content">
+                    <p class="font-playfair" data-i18n="craft.quote">"Legalese is meant to obscure; design is meant to clarify."</p>
+                    <small data-i18n="craft.principle">— Our Principle</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hcs-visual">
+              <div class="craft-visual-wrapper">
+                <!-- Custom Asymmetric Floating Accents representing human curation -->
+                <div class="signature-card">
+                  <div class="sc-handwriting font-playfair" data-i18n="craft.badge">Justice For All</div>
+                  <div class="sc-divider"></div>
+                  <p data-i18n="craft.badge.desc">A commitment to free legal literacy for all Indian citizens.</p>
+                </div>
+                
+                <div class="asymmetric-sketch">
+                  <div class="sketch-line s-1"></div>
+                  <div class="sketch-line s-2"></div>
+                  <div class="sketch-line s-3"></div>
+                  <!-- Scale Illustration -->
+                  <div class="sketch-scale">⚖️</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── INTERACTIVE LIVE WORKSPACE (DASHBOARD CORE) ─── -->
+        <div class="live-workspace-section" id="liveWorkspace">
+          <div class="lw-header">
+            <span class="lw-badge">STUDIO WORKSPACE</span>
+            <h2 class="lw-title font-playfair" data-i18n="dash.quickaction">त्वरित कार्रवाई</h2>
+            <p class="lw-desc">Select a document framework to initialize analysis</p>
+          </div>
+
+          <!-- Asymmetric Action Board -->
+          <div class="action-board">
+            <div class="ab-grid">
+              <button class="premium-action-card fir" onclick="App.selectDoc('fir')">
+                <div class="pac-icon">🚔</div>
+                <div class="pac-content">
+                  <h4 data-i18n="doc.fir">FIR</h4>
+                  <p data-i18n="doc.fir.sub">पुलिस रिपोर्ट विश्लेषण</p>
+                </div>
+                <span class="pac-arrow">➔</span>
+              </button>
+              
+              <button class="premium-action-card land" onclick="App.selectDoc('land')">
+                <div class="pac-icon">🏡</div>
+                <div class="pac-content">
+                  <h4 data-i18n="doc.land">ज़मीन</h4>
+                  <p data-i18n="doc.land.sub">भूमि दस्तावेज़ जाँच</p>
+                </div>
+                <span class="pac-arrow">➔</span>
+              </button>
+
+              <button class="premium-action-card rent" onclick="App.selectDoc('rent')">
+                <div class="pac-icon">🏠</div>
+                <div class="pac-content">
+                  <h4 data-i18n="doc.rent">किराया</h4>
+                  <p data-i18n="doc.rent.sub">किराया समझौता समीक्षा</p>
+                </div>
+                <span class="pac-arrow">➔</span>
+              </button>
+
+              <button class="premium-action-card loan" onclick="App.selectDoc('loan')">
+                <div class="pac-icon">💰</div>
+                <div class="pac-content">
+                  <h4 data-i18n="doc.loan">लोन</h4>
+                  <p data-i18n="doc.loan.sub">ऋण दस्तावेज़ समीक्षा</p>
+                </div>
+                <span class="pac-arrow">➔</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Organic Stats Panel -->
+          <div class="workspace-analytics">
+            <div class="stats-asymmetric-grid">
+              <div class="stat-luxury-card scanned">
+                <div class="slc-icon">📄</div>
+                <div class="slc-num stat-value">0</div>
+                <div class="slc-label" data-i18n="dash.stat.scanned">स्कैन किए गए दस्तावेज़</div>
+              </div>
+
+              <div class="stat-luxury-card danger">
+                <div class="slc-icon">⚠️</div>
+                <div class="slc-num stat-value">0</div>
+                <div class="slc-label" data-i18n="dash.stat.alerts">जोखिम अलर्ट</div>
+              </div>
+
+              <div class="stat-luxury-card safe">
+                <div class="slc-icon">✅</div>
+                <div class="slc-num stat-value">0</div>
+                <div class="slc-label" data-i18n="dash.stat.safe">सुरक्षित शर्तें</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Minimalist Recent Activity -->
+          <div class="activity-ledger">
+            <h3 class="ledger-title" data-i18n="dash.recent">हाल की गतिविधि</h3>
+            <div class="ledger-box" id="activityEmpty">
+              <div class="ledger-empty">
+                <span>📂</span>
+                <p data-i18n="dash.norecent">अभी तक कोई स्कैन नहीं। शुरू करने के लिए दस्तावेज़ स्कैन करें!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── PREMIUM CTA BANNER ─── -->
+        <div class="cta-luxury-banner">
+          <div class="clb-glow"></div>
+          <div class="clb-content">
+            <h2 class="font-playfair" data-i18n="cta.banner.title">अपने अधिकारों की रक्षा करें</h2>
+            <p data-i18n="cta.banner.subtitle">किसी भी दस्तावेज़ पर हस्ताक्षर करने से पहले उसकी पूरी जाँच करें।</p>
+            <button class="btn-premium primary ripple-btn" onclick="App.navigateTo('screen-scan')">
+              <span data-i18n="cta.banner.btn">अभी निःशुल्क स्कैन करें</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ─── ELEGANT EDITORIAL FOOTER ─── -->
+        <footer class="premium-footer">
+          <div class="footer-columns">
+            <div class="fc-col brand">
+              <div class="brand-footer-logo">⚖️</div>
+              <h3 class="font-playfair">कानून की रोशनी</h3>
+              <p>Democratizing legal aids across India using open-source, on-device visual intellect.</p>
+            </div>
+            
+            <div class="fc-col links">
+              <h4>RESOURCES</h4>
+              <ul>
+                <li><a href="#" onclick="App.showToast('Legal Hub coming soon!')">Legal Aid Wiki</a></li>
+                <li><a href="#" onclick="App.showToast('Developer API coming soon!')">Developer SDK</a></li>
+                <li><a href="#" onclick="App.showToast('Offline Mode activated.')">PWA Manifest</a></li>
+              </ul>
+            </div>
+
+            <div class="fc-col contact">
+              <h4>NATIONAL HELPLINES</h4>
+              <p>National Legal Services Authority (NALSA)</p>
+              <a href="tel:15100" class="footer-phone-link">📞 15100 (Toll Free)</a>
+              <a href="tel:1800110001" class="footer-phone-link">📞 1800-11-0001</a>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <p>&copy; 2026 कानून की रोशनी (Kanoon Ki Roshni). All Rights Reserved. Built with 🤍 in India.</p>
+            <p class="legal-disclaimer">Disclaimer: This tool provides AI-based legal analysis and OCR parsing. It does not constitute professional legal advice. Consult a certified lawyer for formal legal actions.</p>
+          </div>
+        </footer>
+
+      </section>
+
+
+      <!-- ═══════════════════════════════════════════
+           SCREEN: SCAN / UPLOAD WORKSPACE
+      ════════════════════════════════════════════ -->
+      <section id="screen-scan" class="screen">
+        <div class="workspace-card-layout">
+          <div class="wcl-header">
+            <button class="btn-text-back" onclick="App.goHome()">
+              <span data-i18n="scan.back">← वापस</span>
+            </button>
+            <h2 data-i18n="scan.title">दस्तावेज़ स्कैन करें</h2>
+          </div>
+
+          <div class="lux-scan-workspace">
+            <div class="scan-area-luxury" id="scanArea">
+              <div class="scan-frame-luxury">
+                <div class="sc-c c-tl"></div>
+                <div class="sc-c c-tr"></div>
+                <div class="sc-c c-bl"></div>
+                <div class="sc-c c-br"></div>
+                <div class="laser-scanner-line"></div>
+                <div class="scan-instructions">
+                  <div class="si-icon font-playfair">⚖️</div>
+                  <p data-i18n="scan.hint">यहाँ दस्तावेज़ रखें</p>
+                  <small data-i18n="scan.hint.sub">कैमरे के सामने दस्तावेज़ रखें</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hidden file input -->
+            <input type="file" id="fileInput" accept="image/*" capture="environment" hidden onchange="App.handleFile(event)" />
+
+            <div class="luxury-scan-actions">
+              <button class="btn-premium primary ripple-btn" onclick="document.getElementById('fileInput').click()">
+                <span data-i18n="scan.camera">📸 कैमरा से खींचें</span>
+              </button>
+              <button class="btn-premium secondary-link" onclick="App.useSampleDoc()">
+                <span data-i18n="scan.sample">📄 सैंपल देखें</span>
+              </button>
+            </div>
+
+            <!-- Preview panel (Smooth Entrance) -->
+            <div id="previewContainer" class="luxury-preview-wrap hidden">
+              <div class="preview-card-frame">
+                <img id="previewImg" src="" alt="Document preview" />
+              </div>
+              <button class="btn-premium primary pulsing-cta" onclick="App.analyzeDocument()">
+                <span data-i18n="scan.analyze">🔍 विश्लेषण करें</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ═══════════════════════════════════════════
+           SCREEN: PROCESSING MODAL
+      ════════════════════════════════════════════ -->
+      <section id="screen-processing" class="screen">
+        <div class="luxury-processing-shield">
+          <div class="glowing-orb-hub">
+            <div class="orb-pulsar"></div>
+            <div class="orb-inner font-playfair">⚖️</div>
+          </div>
+          <h2 id="processingStep" data-i18n="proc.ocr">OCR चल रहा है…</h2>
+          <p id="processingSubStep" data-i18n="proc.reading">दस्तावेज़ पढ़ा जा रहा है</p>
+          <div class="lux-progress-track">
+            <div class="lux-progress-fill" id="progressFill"></div>
+          </div>
+          <p class="lux-processing-note" data-i18n="proc.note">AI कानूनी भाषा को सरल भाषा में बदल रहा है</p>
+        </div>
+      </section>
+
+
+      <!-- ═══════════════════════════════════════════
+           SCREEN: AR / ANALYTICS RESULTS
+      ════════════════════════════════════════════ -->
+      <section id="screen-results" class="screen">
+        <div class="workspace-card-layout">
+          <div class="wcl-header flex-between">
+            <button class="btn-text-back" onclick="App.goHome()">
+              <span data-i18n="scan.back">← वापस</span>
+            </button>
+            <h2 id="resultDocType" data-i18n="result.title" class="font-playfair">विश्लेषण</h2>
+            <button class="speak-luxury-btn" onclick="App.speakAll()" title="सुनें" aria-label="Listen">
+              🔊 <span style="font-size:0.75rem; margin-left:4px;">Listen Summary</span>
+            </button>
+          </div>
+
+          <div class="results-editorial-grid">
+            <!-- Left: Document Viewport with AR Overlay -->
+            <div class="luxury-ar-viewport-card">
+              <div class="ar-viewport-header">
+                <span class="avh-dot"></span>
+                <span>AUGMENTED REALITY SYSTEM OVERLAY</span>
+              </div>
+              <div class="ar-viewport-frame" id="arViewport">
+                <img id="arDocImg" src="" alt="document" />
+                <div id="arBubbles" class="ar-bubbles"></div>
+              </div>
+            </div>
+
+            <!-- Right: Results Panel -->
+            <div class="results-editorial-panel" id="resultsPanel">
+              <div class="risk-summary-editorial" id="riskSummary"></div>
+
+              <h3 class="section-label-editorial" data-i18n="result.clauses">📋 मुख्य बातें</h3>
+              <div id="clausesList" class="clauses-editorial-list"></div>
+
+              <h3 class="section-label-editorial" data-i18n="result.steps">👉 आगे क्या करें</h3>
+              <div id="nextSteps" class="next-steps-luxury"></div>
+
+              <!-- Premium Local Support Card -->
+              <div class="helpline-luxury-card">
+                <div class="hlc-radial-glow"></div>
+                <div class="hlc-badge">FREE LEGAL SUPPORT</div>
+                <h4 data-i18n="result.helpline.title">🆓 मुफ्त कानूनी सहायता</h4>
+                <p data-i18n="result.helpline.desc">National Legal Services Authority (NALSA) Helpline</p>
+                <a href="tel:15100" class="btn-premium primary ripple-btn text-center margin-top-sm" data-i18n="result.helpline.toll">📞 15100 — टोल फ्री</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ═══════════ GROQ API KEY MODAL (Premium Styled) ═══════════ -->
+  <div id="apiKeyModal" class="modal-overlay hidden">
+    <div class="premium-modal-box">
+      <button class="modal-close-x" onclick="App.closeModal()">✕</button>
+      <div class="pmb-icon font-playfair">🔑</div>
+      <h3 data-i18n="modal.title">Groq API Key डालें</h3>
+      <p data-i18n="modal.desc">console.groq.com पर जाकर मुफ्त API key लें</p>
+      <div class="input-luxury-wrapper">
+        <input type="text" id="apiKeyInput" placeholder="gsk_..." class="api-input-luxury" />
+        <span class="input-focus-border"></span>
+      </div>
+      <div class="modal-actions-luxury">
+        <button onclick="App.saveApiKey()" class="btn-premium primary ripple-btn" data-i18n="modal.save">सेव करें</button>
+        <button onclick="App.closeModal()" class="btn-premium secondary-link" data-i18n="modal.later">बाद में</button>
+      </div>
+      <small class="pmb-note" data-i18n="modal.note">Key आपके device पर ही सेव होगी</small>
+    </div>
+  </div>
+
+  <!-- Toast notification (Premium Glassmorphic) -->
+  <div id="toast" class="toast-luxury hidden"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ocr.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ar.js"></script>
+  <script src="js/tts.js"></script>
+</body>
+</html>
