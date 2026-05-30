@@ -4,6 +4,14 @@
 > Point your phone at any legal document and instantly understand your rights — in plain Hindi. Free. No app install. No lawyer needed.
 
 ---
+Project - 
+
+<img width="1341" height="678" alt="image" src="https://github.com/user-attachments/assets/a73cede1-c87f-4faf-a442-f1b46b8b198d" />
+
+<img width="1340" height="662" alt="image" src="https://github.com/user-attachments/assets/9cd7e0a4-0e33-4bcc-82dd-fd4b4bea0807" />
+
+
+---
 
 ## 🗂️ Project Structure
 
