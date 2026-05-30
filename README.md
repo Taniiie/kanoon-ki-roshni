@@ -13,7 +13,7 @@ Project -
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 kanoon-ki-roshni/
@@ -36,7 +36,7 @@ kanoon-ki-roshni/
 
 ---
 
-## 🛠️ Tech Stack (100% Free)
+## Tech Stack (100% Free)
 
 | Component     | Technology              | Cost  |
 |---------------|-------------------------|-------|
@@ -49,7 +49,7 @@ kanoon-ki-roshni/
 
 ---
 
-## 🚀 Setup & Run
+## Setup & Run
 
 ### Local Development
 ```bash
@@ -75,7 +75,7 @@ vercel deploy
 
 ---
 
-## 📱 How It Works
+## How It Works
 
 ```
 1. User selects document type (FIR / Land / Rent / Loan)
@@ -92,7 +92,7 @@ vercel deploy
 
 ---
 
-## 🔌 Offline Mode
+## Offline Mode
 If no API key / no internet → `ai.js` uses **rule-based pattern matching** to detect:
 - Non-refundable deposits
 - No-notice eviction clauses
@@ -104,7 +104,7 @@ Works on ₹5,000 phones with zero connectivity.
 
 ---
 
-## 📋 Document Types Supported
+## Document Types Supported
 - **FIR** — Police First Information Report
 - **ज़मीन / Land Deed** — Khasra, Khatauni, Sale Deed
 - **किराया / Rent Agreement** — Residential/Commercial lease
@@ -112,7 +112,7 @@ Works on ₹5,000 phones with zero connectivity.
 
 ---
 
-## 🏆 Hackathon Notes
+## Hackathon Notes
 
 **Novelty:** No AR legal tool exists for Indian vernacular documents at this scale.
 
@@ -124,13 +124,13 @@ Works on ₹5,000 phones with zero connectivity.
 
 ---
 
-## 📞 Helplines Integrated
+## Helplines Integrated
 - NALSA Toll Free: **15100**
 - Legal Aid: **1800-11-0001**
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 - [ ] Live camera AR (MindAR.js integration)
 - [ ] 22 Indian language support (IndicTrans2)
 - [ ] Volunteer lawyer connect feature
